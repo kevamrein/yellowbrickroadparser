@@ -3,14 +3,22 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "dev": "dotenv -e .env.local -- node --loader ts-node/esm ./src/index.ts",
+    "prisma-push": "dotenv -e .env.local -- npx prisma db push"
   },
   "author": "Kevin Amrein",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^5.7.0",
+    "dotenv-cli": "^7.3.0",
     "node-fetch": "^3.3.2",
     "node-html-parser": "^6.1.11"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "prisma": "^5.7.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   }
 }
