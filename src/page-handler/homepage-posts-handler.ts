@@ -1,6 +1,6 @@
 import fetch from 'node-fetch'
 import { parse } from 'node-html-parser'
-import { PostProp, addPost, getPostForUrl } from '../db/post.js'
+import { PostProp, persistPost, getPostForUrl } from '../db/post.js'
 import { URL_PREFIX } from '../constants.js'
 import { getStockRecommendationsForPost } from './post-page-handler.js'
 
@@ -11,11 +11,12 @@ export async function getAndPersistPosts(month: Number, day: Number) {
     throw new Error(`HTTP error! status: ${response.status}`)
   }
 
-  const posts = parse(await response.text()).querySelectorAll('a[href^="/p/"]')
+  const postLinks = parse(await response.text()).querySelectorAll(
+    'a[href^="/p/"]'
+  )
 
-  const postObjects: PostProp[] = []
-  posts.forEach(async (post) => {
-    const href = post.getAttribute('href')
+  postLinks.forEach(async (postLink) => {
+    const href = postLink.getAttribute('href')
     if (!href) return
     const fullUrl = `${URL_PREFIX}${href}`
     if (await getPostForUrl(fullUrl)) {
@@ -31,20 +32,15 @@ export async function getAndPersistPosts(month: Number, day: Number) {
 
     const date = new Date(year, monthNumber, Number(day))
 
-    const parsedPost = {
-      title: post.text,
+    const postToPersist = {
+      title: postLink.text,
       url: `${fullUrl}`,
       publishDate: date,
       stockRecommendations: await getStockRecommendationsForPost(`${fullUrl}`),
     }
 
-    addPost(parsedPost)
-    postObjects.push(parsedPost)
+    persistPost(postToPersist)
   })
-
-  postObjects.sort(
-    (postA, postB) => postB.publishDate.getTime() - postA.publishDate.getTime()
-  )
 }
 
 function convertMonthAbbreviationToNumber(month: string) {

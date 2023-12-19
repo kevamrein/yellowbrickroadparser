@@ -36,7 +36,7 @@ export async function getPostForUrl(
   return convertDbPostToPostProp(dbPost)
 }
 
-export async function addPost(post: PostProp) {
+export async function persistPost(post: PostProp) {
   const stockRecommendations = post.stockRecommendations.map((e) =>
     convertStockRecommendationsToDb(e)
   )
